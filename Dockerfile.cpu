@@ -1,0 +1,46 @@
+# 基于基础镜像：python:3.10-slim
+FROM python:3.10-slim
+
+# 环境变量：确保 Python 日志实时输出
+ENV PYTHONUNBUFFERED=1
+
+# 环境变量：禁用 pip 缓存，减小镜像体积
+ENV PIP_NO_CACHE_DIR=1
+
+# 环境变量：定义应用的根目录，统一路径规范
+ENV APP_HOME=/app
+
+# 工作目录
+WORKDIR ${APP_HOME}
+
+# 系统依赖（Pillow 等可能用到）
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+# 拷贝到当前工作目录/app下，并安装依赖
+COPY requirements.txt ./
+
+# 在安装依赖前，先创建 pip 配置文件，永久指定阿里云源
+RUN mkdir -p /root/.pip && \
+    echo "[global]" > /root/.pip/pip.conf && \
+    echo "index-url = https://mirrors.aliyun.com/pypi/simple/" >> /root/.pip/pip.conf && \
+    echo "[install]" >> /root/.pip/pip.conf && \
+    echo "trusted-host = mirrors.aliyun.com" >> /root/.pip/pip.conf
+
+# RUN pip install -U pip && pip install -r requirements.txt
+RUN pip install -U pip --default-timeout=120 && \
+    pip install -r requirements.txt --default-timeout=120
+
+# 拷贝app.py和torchscript文件夹到当前工作目录/app下
+COPY app.py ./app
+COPY torchscript ./torchscript
+
+# 暴露对外端口
+EXPOSE 8801
+
+# 健康检查（可选）
+HEALTHCHECK --interval=60s --timeout=10s --start-period=30s CMD curl -f http://127.0.0.1:8801/healthz || exit 1
+
+# 启动服务应用
+CMD ["python", "app.py"]

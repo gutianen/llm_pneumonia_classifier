@@ -2,6 +2,12 @@
 __pycache__/
 *.py[codz]
 *$py.class
+.idea
+data/
+data/*
+checkpoints
+checkpoints/*.*
+
 
 # C extensions
 *.so
@@ -205,3 +211,5 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+!/data/
+checkpoints/pneumonia_model.pth

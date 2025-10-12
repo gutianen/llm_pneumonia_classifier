@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.swp
+.venv
+.env
+dist/
+build/
+.git
+.gitignore/data/
+data/
+data/*
+checkpoints/
+checkpoints/*
+/checkpoints/
