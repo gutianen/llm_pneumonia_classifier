@@ -1,7 +1,7 @@
 import org.yaml.snakeyaml.Yaml
 
 node {
-    def pythonTool = tool name: 'python-3.10', type: 'hudson.plugins.python.PythonInstallation'
+    // def pythonTool = tool name: 'python-3.10', type: 'hudson.plugins.python.PythonInstallation'
 
     def image_name = 'pneumonia-classifier-python310-cpu'
     def project_version
