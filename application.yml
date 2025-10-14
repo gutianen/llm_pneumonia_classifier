@@ -1,0 +1,4 @@
+project:
+  name: "pneumonia_classifier"  # 项目名称（
+  version: "v1.0"           # 核心版本号，后续可修改为 v1.1、v2.0 等
+  description: "肺炎影像分类服务"

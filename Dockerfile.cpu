@@ -18,9 +18,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-# 拷贝到当前工作目录/app下，并安装依赖
-COPY requirements.txt ./
-
 # 在安装依赖前，先创建 pip 配置文件，永久指定阿里云源
 RUN mkdir -p /root/.pip && \
     echo "[global]" > /root/.pip/pip.conf && \
@@ -28,12 +25,21 @@ RUN mkdir -p /root/.pip && \
     echo "[install]" >> /root/.pip/pip.conf && \
     echo "trusted-host = mirrors.aliyun.com" >> /root/.pip/pip.conf
 
+# 拷贝到当前工作目录/app下，并安装依赖
+COPY requirements.txt ./
+
+# 依赖包安装
 # RUN pip install -U pip && pip install -r requirements.txt
 RUN pip install -U pip --default-timeout=120 && \
     pip install -r requirements.txt --default-timeout=120
 
+# 清理系统缓存
+RUN apt-get clean && rm -rf /tmp/* /var/tmp/*
+
 # 拷贝app.py和torchscript文件夹到当前工作目录/app下
-COPY app.py ./app
+# 对应容器内路径：/app/app.py
+COPY app.py ./
+# 对应容器内路径：/app/torchscript
 COPY torchscript ./torchscript
 
 # 暴露对外端口

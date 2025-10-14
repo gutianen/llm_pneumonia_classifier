@@ -1,0 +1,63 @@
+import org.yaml.snakeyaml.Yaml
+
+node {
+    def pythonTool = tool name: 'python-3.10', type: 'hudson.plugins.python.PythonInstallation'
+
+    def image_name = 'pneumonia-classifier-python310-cpu'
+    def project_version
+    def buildTimestamp
+    def image_version
+    def registry_url = 'registry.cn-shanghai.aliyuncs.com'
+    def registry_user = 'mhzboy2008'
+    def registry_pswd = 'gte123456'
+
+    stage('1.拉取基础镜像') {
+        sh "docker pull python:3.10-slim"
+        echo '基础镜像拉取完成'
+    }
+
+    stage('2.启动 Buildx 构建流程') {
+        sh "docker buildx use default"
+        echo '构建流程创建完毕'
+    }
+
+    stage('3.构建Docker镜像') {
+        project_version = getProjectVersion('application.yml')
+        echo "读取项目版本号：${project_version}"
+        buildTimestamp = getBuildTimestamp()
+        image_version = "${project_version}-${buildTimestamp}"
+        echo "本次构建版本号：${image_version}"
+
+        sh "docker buildx build --platform linux/amd64 -f Dockerfile.cpu -t ${image_name}:${image_version}  --load ."
+        echo "docker镜像构建完毕：${image_name}:${image_version}"
+    }
+
+    stage('4.Docker镜像推送到阿里云私仓') {
+        sh "docker login -u ${registry_user} -p ${registry_pswd} ${registry_url}"
+        sh "docker tag ${image_name}:${image_version} ${registry_url}/${image_name}:${image_version}"
+        sh "docker push ${registry_url}/${image_name}:${image_version}"
+        sh "docker logout ${registry_url}"
+        echo "docker镜像推送完毕：${registry_url}/${image_name}:${image_version}"
+    }
+
+    stage('5.Git标签') {
+        sh "git tag ${image_version}"
+        sh "git push origin ${image_version}"
+        echo "Git标签推送完毕：${image_version}"
+    }
+}
+
+def getProjectVersion(filePath) {
+    // Jenkins 内置方法，读取 YAML 文件内容
+    def yamlContent = readFile(file: filePath)
+    def yaml = new Yaml()
+    def data = yaml.load(yamlContent)  // 解析为 Groovy 字典（Map）
+    // 提取版本号（对应 YAML 中的 project.version）， 项目版本号跟镜像版本号一致
+    return data.project.version.trim()
+}
+
+def getBuildTimestamp() {
+    def timestamp = new java.text.SimpleDateFormat("yyyyMMddHHmm").format(new Date())
+    return timestamp
+}
+
