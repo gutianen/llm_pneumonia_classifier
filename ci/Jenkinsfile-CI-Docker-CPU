@@ -11,7 +11,6 @@ node {
     def registry_user = 'mhzboy2008'
     def registry_pswd = 'gte123456'
     def registry_namespace = 'pers_gte'
-    def credential_id_for_github = '9adaff58-988c-4b97-bc54-8e536798ec75'
     def git_config_email = 'dboyiii@163.com'
     def git_config_username = 'gutianen'
     def git_project_name = 'llm_pneumonia_classifier'
@@ -48,7 +47,7 @@ node {
 
     stage('5.Git标签') {
         withCredentials([usernamePassword(
-            credentialsId: '${credential_id_for_github}',  // 你的凭据ID
+            credentialsId: '9adaff58-988c-4b97-bc54-8e536798ec75',  凭据ID
             usernameVariable: 'GIT_USERNAME',
             passwordVariable: 'GIT_PASSWORD'
         )]) {
