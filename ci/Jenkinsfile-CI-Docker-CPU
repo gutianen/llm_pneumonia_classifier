@@ -11,6 +11,7 @@ node {
     def registry_url = 'registry.cn-shanghai.aliyuncs.com'
     def registry_user = 'mhzboy2008'
     def registry_pswd = 'gte123456'
+    def registry_namespace = 'pers_gte'
 
     stage('1.拉取基础镜像') {
         sh "docker pull python:3.10-slim"
@@ -36,8 +37,8 @@ node {
 
     stage('4.Docker镜像推送到阿里云私仓') {
         sh "docker login -u ${registry_user} -p ${registry_pswd} ${registry_url}"
-        sh "docker tag ${image_name}:${image_version} ${registry_url}/${image_name}:${image_version}"
-        sh "docker push ${registry_url}/${image_name}:${image_version}"
+        sh "docker tag ${image_name}:${image_version} ${registry_url}/${registry_namespace}/${image_name}:${image_version}"
+        sh "docker push ${registry_url}/${registry_namespace}/${image_name}:${image_version}"
         sh "docker logout ${registry_url}"
         echo "docker镜像推送完毕：${registry_url}/${image_name}:${image_version}"
     }
