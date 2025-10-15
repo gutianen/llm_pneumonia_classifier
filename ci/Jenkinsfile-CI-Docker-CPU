@@ -23,7 +23,7 @@ node {
     stage('3.构建Docker镜像') {
         // project_version = getProjectVersion('application.yml')
         def workspace = env.WORKSPACE
-        echo "工作区路径: ${workspace}
+        echo "工作区路径: ${workspace}"
         project_version = getProjectVersion("${workspace}/application.yml")
         echo "读取项目版本号：${project_version}"
         buildTimestamp = getBuildTimestamp()
