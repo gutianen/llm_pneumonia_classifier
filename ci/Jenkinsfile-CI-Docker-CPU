@@ -2,7 +2,8 @@ import org.yaml.snakeyaml.Yaml
 
 node {
     // def pythonTool = tool name: 'python-3.10', type: 'hudson.plugins.python.PythonInstallation'
-
+    def scriptTempDir = new File(env.SCRIPT_PATH).getParent()
+    echo "临时 @script 目录路径：${scriptTempDir}"  // 调试用，可看到完整临时目录
     def image_name = 'pneumonia-classifier-python310-cpu'
     def project_version
     def buildTimestamp
@@ -22,7 +23,8 @@ node {
     }
 
     stage('3.构建Docker镜像') {
-        project_version = getProjectVersion('application.yml')
+        // project_version = getProjectVersion('application.yml')
+        project_version = getProjectVersion("${scriptTempDir}/application.yml")
         echo "读取项目版本号：${project_version}"
         buildTimestamp = getBuildTimestamp()
         image_version = "${project_version}-${buildTimestamp}"
