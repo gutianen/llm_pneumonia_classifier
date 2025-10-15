@@ -2,7 +2,10 @@ import org.yaml.snakeyaml.Yaml
 
 node {
     // def pythonTool = tool name: 'python-3.10', type: 'hudson.plugins.python.PythonInstallation'
-    def scriptTempDir = new File(env.SCRIPT_PATH).getParent()
+    def scriptTempDir = sh(
+        script: "dirname ${env.SCRIPT_PATH}",  // dirname 命令：取文件路径的目录部分
+        returnStdout: true
+    ).trim()
     echo "临时 @script 目录路径：${scriptTempDir}"  // 调试用，可看到完整临时目录
     def image_name = 'pneumonia-classifier-python310-cpu'
     def project_version
