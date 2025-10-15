@@ -3,7 +3,6 @@ import org.yaml.snakeyaml.Yaml
 node {
     checkout scm
 
-    // def pythonTool = tool name: 'python-3.10', type: 'hudson.plugins.python.PythonInstallation'
     def image_name = 'pneumonia-classifier-python310-cpu'
     def project_version
     def buildTimestamp
@@ -12,6 +11,11 @@ node {
     def registry_user = 'mhzboy2008'
     def registry_pswd = 'gte123456'
     def registry_namespace = 'pers_gte'
+    def credential_id_for_github = '9adaff58-988c-4b97-bc54-8e536798ec75'
+    def git_config_email = 'dboyiii@163.com'
+    def git_config_username = 'gutianen'
+    def git_project_name = 'llm_pneumonia_classifier'
+
 
     stage('1.拉取基础镜像') {
         sh "docker pull python:3.10-slim"
@@ -24,7 +28,6 @@ node {
     }
 
     stage('3.构建Docker镜像') {
-        // project_version = getProjectVersion('application.yml')
         project_version = getProjectVersion("application.yml")
         echo "读取项目版本号：${project_version}"
         buildTimestamp = getBuildTimestamp()
@@ -40,12 +43,21 @@ node {
         sh "docker tag ${image_name}:${image_version} ${registry_url}/${registry_namespace}/${image_name}:${image_version}"
         sh "docker push ${registry_url}/${registry_namespace}/${image_name}:${image_version}"
         sh "docker logout ${registry_url}"
-        echo "docker镜像推送完毕：${registry_url}/${image_name}:${image_version}"
+        echo "docker镜像推送完毕：${registry_url}/${registry_namespace}/${image_name}:${image_version}"
     }
 
     stage('5.Git标签') {
-        sh "git tag ${image_version}"
-        sh "git push origin ${image_version}"
+        withCredentials([usernamePassword(
+            credentialsId: '${credential_id_for_github}',  // 你的凭据ID
+            usernameVariable: 'GIT_USERNAME',
+            passwordVariable: 'GIT_PASSWORD'
+        )]) {
+            sh "git config --global user.email ${git_config_email}"
+            sh "git config --global user.name ${git_config_username}"
+            sh "git remote set-url origin https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${git_config_username}/${git_project_name}.git"
+            sh "git tag ${image_version}"
+            sh "git push origin ${image_version}"
+        }
         echo "Git标签推送完毕：${image_version}"
     }
 }
