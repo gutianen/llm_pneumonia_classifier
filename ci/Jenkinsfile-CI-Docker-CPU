@@ -47,7 +47,7 @@ node {
 
     stage('5.Git标签') {
         withCredentials([usernamePassword(
-            credentialsId: '9adaff58-988c-4b97-bc54-8e536798ec75',  凭据ID
+            credentialsId: '9adaff58-988c-4b97-bc54-8e536798ec75',
             usernameVariable: 'GIT_USERNAME',
             passwordVariable: 'GIT_PASSWORD'
         )]) {
