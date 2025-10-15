@@ -1,6 +1,8 @@
 import org.yaml.snakeyaml.Yaml
 
 node {
+    checkout scm
+
     // def pythonTool = tool name: 'python-3.10', type: 'hudson.plugins.python.PythonInstallation'
     def image_name = 'pneumonia-classifier-python310-cpu'
     def project_version
@@ -22,9 +24,7 @@ node {
 
     stage('3.构建Docker镜像') {
         // project_version = getProjectVersion('application.yml')
-        def workspace = env.WORKSPACE
-        echo "工作区路径: ${workspace}"
-        project_version = getProjectVersion("${workspace}/application.yml")
+        project_version = getProjectVersion("application.yml")
         echo "读取项目版本号：${project_version}"
         buildTimestamp = getBuildTimestamp()
         image_version = "${project_version}-${buildTimestamp}"
